@@ -14,7 +14,18 @@ spec:
 """
         }
     }
+    environment {
+        // Make sure this matches your Jenkins SonarQube server name
+        SONARQUBE_SERVER = 'sonar-server'
+    }
     stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Build') {
             steps {
                 container('maven') {
@@ -22,6 +33,7 @@ spec:
                 }
             }
         }
+
         stage('Test') {
             steps {
                 container('maven') {
@@ -29,12 +41,21 @@ spec:
                 }
             }
         }
+
         stage('SonarQube Analysis') {
             steps {
                 container('maven') {
-                    withSonarQubeEnv('sonar-server') {
+                    withSonarQubeEnv("${SONARQUBE_SERVER}") {
                         sh 'mvn sonar:sonar -Dsonar.projectKey=sonar-demo'
                     }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
