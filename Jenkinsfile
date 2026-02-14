@@ -1,26 +1,43 @@
 pipeline {
-    agent any
-
+    agent {
+        kubernetes {
+            yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: maven
+    image: maven:3.9.3-openjdk-11
+    command:
+    - cat
+    tty: true
+"""
+        }
+    }
     stages {
         stage('Build') {
             steps {
-                sh 'mvn clean compile'
+                container('maven') {
+                    sh 'mvn clean compile'
+                }
             }
         }
         stage('Test') {
             steps {
-                sh 'mvn test'
+                container('maven') {
+                    sh 'mvn test'
+                }
             }
         }
         stage('SonarQube Analysis') {
-            environment {
-                SONARQUBE_SCANNER = 'sonar-scanner'
-            }
             steps {
-                withSonarQubeEnv('sonar-server') {
-                    sh 'mvn sonar:sonar -Dsonar.projectKey=sonar-demo'
+                container('maven') {
+                    withSonarQubeEnv('sonar-server') {
+                        sh 'mvn sonar:sonar -Dsonar.projectKey=sonar-demo'
+                    }
                 }
             }
         }
     }
 }
+
