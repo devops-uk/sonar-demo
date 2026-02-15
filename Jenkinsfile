@@ -12,7 +12,7 @@ spec:
     tty: true
 
   - name: kaniko
-    image: gcr.io/kaniko-project/executor:v1.23.2
+    image: gcr.io/kaniko-project/executor:v1.23.2-debug
     command:
     - /bin/sh
     - -c
@@ -33,7 +33,6 @@ spec:
   }
 
   environment {
-    // Nexus Docker registry endpoint (docker-hosted)
     REGISTRY = "nexus-nexus-repository-manager.nexus.svc.cluster.local:5000"
     IMAGE    = "sonar-demo"
     TAG      = "${BUILD_NUMBER}"
