@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -23,27 +23,18 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-         <distributionManagement>
-    <repository>
-        <id>nexus</id>
-        <url>http://nexus-nexus-repository-manager.nexus.svc.cluster.local:8081/repository/maven-hosted/</url>
-    </repository>
-</distributionManagement>
-</project>
 
-<distributionManagement>
-    <repository>
-        <id>maven-releases</id>
-        <url>
-          http://nexus-nexus-repository-manager.nexus.svc.cluster.local:8081/repository/maven-releases/
-        </url>
-    </repository>
-    <snapshotRepository>
-        <id>maven-snapshots</id>
-        <url>
-          http://nexus-nexus-repository-manager.nexus.svc.cluster.local:8081/repository/maven-snapshots/
-        </url>
-    </snapshotRepository>
-</distributionManagement>
+    <distributionManagement>
+        <repository>
+            <id>maven-releases</id>
+            <url>http://nexus-nexus-repository-manager.nexus.svc.cluster.local:8081/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>maven-snapshots</id>
+            <url>http://nexus-nexus-repository-manager.nexus.svc.cluster.local:8081/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+</project>
 
 
