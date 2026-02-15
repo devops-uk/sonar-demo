@@ -31,3 +31,19 @@
 </distributionManagement>
 </project>
 
+<distributionManagement>
+    <repository>
+        <id>maven-releases</id>
+        <url>
+          http://nexus-nexus-repository-manager.nexus.svc.cluster.local:8081/repository/maven-releases/
+        </url>
+    </repository>
+    <snapshotRepository>
+        <id>maven-snapshots</id>
+        <url>
+          http://nexus-nexus-repository-manager.nexus.svc.cluster.local:8081/repository/maven-snapshots/
+        </url>
+    </snapshotRepository>
+</distributionManagement>
+
+
