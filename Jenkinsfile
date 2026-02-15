@@ -13,8 +13,10 @@ spec:
 
   - name: kaniko
     image: gcr.io/kaniko-project/executor:v1.23.2
-    command: ["/busybox/cat"]
-    tty: true
+    command:
+    - /bin/sh
+    - -c
+    - "sleep 365d"
     volumeMounts:
     - name: docker-config
       mountPath: /kaniko/.docker
@@ -31,6 +33,7 @@ spec:
   }
 
   environment {
+    // Nexus Docker registry endpoint (docker-hosted)
     REGISTRY = "nexus-nexus-repository-manager.nexus.svc.cluster.local:5000"
     IMAGE    = "sonar-demo"
     TAG      = "${BUILD_NUMBER}"
@@ -38,8 +41,11 @@ spec:
   }
 
   stages {
+
     stage('Checkout') {
-      steps { git branch: 'main', url: 'https://github.com/devops-uk/sonar-demo.git' }
+      steps {
+        git branch: 'main', url: 'https://github.com/devops-uk/sonar-demo.git'
+      }
     }
 
     stage('Build JAR') {
