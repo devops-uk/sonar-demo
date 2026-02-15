@@ -19,12 +19,14 @@ spec:
         NEXUS_URL = "http://nexus.local/repository/maven-hosted/"
     }
 
-stage('Checkout') {
-    steps {
-        git branch: 'main',
-            url: 'https://github.com/YOUR-USERNAME/YOUR-REPO.git'
-    }
-}
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/YOUR-USERNAME/YOUR-REPO.git'
+            }
+        }
 
         stage('Build') {
             steps {
@@ -62,14 +64,13 @@ stage('Checkout') {
                     )]) {
 
                         sh """
-                        mvn deploy \
-                          -Dnexus.username=$NEXUS_USER \
-                          -Dnexus.password=$NEXUS_PASS
+                        mvn deploy
                         """
                     }
                 }
             }
         }
+
     }
 }
 
