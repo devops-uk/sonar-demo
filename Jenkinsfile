@@ -23,7 +23,7 @@ spec:
 
         stage('Checkout') {
             steps {
-                git 'https://github.com/YOUR-USERNAME/YOUR-REPO.git'
+                git 'https://github.com/devops-uk/sonar-demo.git'
             }
         }
 
