@@ -16,7 +16,7 @@ spec:
     }
 
     environment {
-        NEXUS_URL = "http://nexus-nexus-repository-manager.nexusus.svc.cluster.local:8081/repository/maven-hosted/"
+        NEXUS_URL = "http://nexus-nexus-repository-manager.nexus.svc.cluster.local:8081/repository/maven-hosted/"
     }
 
     stages {
