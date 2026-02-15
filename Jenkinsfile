@@ -21,6 +21,11 @@ spec:
     - name: docker-config
       mountPath: /kaniko/.docker
 
+  - name: kubectl
+    image: bitnami/kubectl:1.29
+    command: ["cat"]
+    tty: true
+
   volumes:
   - name: docker-config
     secret:
@@ -65,6 +70,23 @@ spec:
               --destination ${FULL_IMG} \
               --insecure \
               --skip-tls-verify
+          """
+        }
+      }
+    }
+
+    stage('Deploy to On-Prem K8s') {
+      steps {
+        container('kubectl') {
+          sh """
+            kubectl create ns apps --dry-run=client -o yaml | kubectl apply -f -
+            kubectl -n apps apply -f sonar-demo-k8s.yaml
+
+            # Update deployment image to newly pushed image
+            kubectl -n apps set image deploy/sonar-demo sonar-demo=${FULL_IMG}
+
+            kubectl -n apps rollout status deploy/sonar-demo --timeout=180s
+            kubectl -n apps get pods -o wide
           """
         }
       }
