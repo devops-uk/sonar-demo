@@ -37,14 +37,19 @@ spec:
         }
 
         stage('SonarQube Scan') {
-            steps {
-                container('maven') {
-                    withSonarQubeEnv('sonar-server') {
-                        sh 'mvn sonar:sonar'
-                    }
+    steps {
+        container('maven') {
+            withSonarQubeEnv('sonar-server') {
+                withCredentials([string(credentialsId: 'sonar-jenkins-token', variable: 'SONAR_TOKEN')]) {
+                    sh '''
+                        mvn clean verify sonar:sonar \
+                        -Dsonar.token=$SONAR_TOKEN
+                    '''
                 }
             }
         }
+    }
+}
 
         stage('Quality Gate') {
             steps {
