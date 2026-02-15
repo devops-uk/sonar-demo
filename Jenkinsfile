@@ -66,7 +66,12 @@ spec:
 <settings>
   <servers>
     <server>
-      <id>nexus</id>
+      <id>maven-releases</id>
+      <username>${NEXUS_USER}</username>
+      <password>${NEXUS_PASS}</password>
+    </server>
+    <server>
+      <id>maven-snapshots</id>
       <username>${NEXUS_USER}</username>
       <password>${NEXUS_PASS}</password>
     </server>
