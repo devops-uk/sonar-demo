@@ -28,28 +28,20 @@ spec:
             }
         }
 
-        stage('Build') {
+        stage('Build + Sonar Scan') {
             steps {
                 container('maven') {
-                    sh 'mvn clean package'
+                    withSonarQubeEnv('sonar-server') {
+                        withCredentials([string(credentialsId: 'sonar-jenkins-token', variable: 'SONAR_TOKEN')]) {
+                            sh '''
+                                mvn clean verify sonar:sonar \
+                                -Dsonar.token=$SONAR_TOKEN
+                            '''
+                        }
+                    }
                 }
             }
         }
-
-        stage('SonarQube Scan') {
-    steps {
-        container('maven') {
-            withSonarQubeEnv('sonar-server') {
-                withCredentials([string(credentialsId: 'sonar-jenkins-token', variable: 'SONAR_TOKEN')]) {
-                    sh '''
-                        mvn clean verify sonar:sonar \
-                        -Dsonar.token=$SONAR_TOKEN
-                    '''
-                }
-            }
-        }
-    }
-}
 
         stage('Quality Gate') {
             steps {
@@ -67,15 +59,14 @@ spec:
                         usernameVariable: 'NEXUS_USER',
                         passwordVariable: 'NEXUS_PASS'
                     )]) {
-
-                        sh """
-                        mvn deploy
-                        """
+                        sh '''
+                            mvn deploy \
+                              -Dnexus.username=$NEXUS_USER \
+                              -Dnexus.password=$NEXUS_PASS
+                        '''
                     }
                 }
             }
         }
-
     }
 }
-
