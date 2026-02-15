@@ -41,6 +41,7 @@ spec:
     REGISTRY = "nexus-nexus-repository-manager.nexus.svc.cluster.local:5000"
     IMAGE    = "sonar-demo"
     TAG      = "${BUILD_NUMBER}"
+    REGISTRY = "10.100.247.93:5000"
     FULL_IMG = "${REGISTRY}/${IMAGE}:${TAG}"
   }
 
