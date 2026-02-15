@@ -61,8 +61,7 @@ spec:
                     )]) {
                         sh '''
                             mvn deploy \
-                              -Dnexus.username=$NEXUS_USER \
-                              -Dnexus.password=$NEXUS_PASS
+                             -DaltDeploymentRepository=nexus::default::${NEXUS_URL}
                         '''
                     }
                 }
