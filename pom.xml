@@ -26,7 +26,7 @@
          <distributionManagement>
     <repository>
         <id>nexus</id>
-        <url>http://nexus.local/repository/maven-hosted/</url>
+        <url>http://nexus-nexus-repository-manager.nexus.svc.cluster.local:8081/repository/maven-hosted/</url>
     </repository>
 </distributionManagement>
 </project>
