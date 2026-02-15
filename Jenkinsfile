@@ -19,13 +19,12 @@ spec:
         NEXUS_URL = "http://nexus.local/repository/maven-hosted/"
     }
 
-    stages {
-
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/devops-uk/sonar-demo.git'
-            }
-        }
+stage('Checkout') {
+    steps {
+        git branch: 'main',
+            url: 'https://github.com/YOUR-USERNAME/YOUR-REPO.git'
+    }
+}
 
         stage('Build') {
             steps {
