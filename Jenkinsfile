@@ -33,10 +33,10 @@ spec:
                 container('maven') {
                     withSonarQubeEnv('sonar-server') {
                         withCredentials([string(credentialsId: 'sonar-jenkins-token', variable: 'SONAR_TOKEN')]) {
-                            sh '''
+                            sh """
                                 mvn clean verify sonar:sonar \
-                                  -Dsonar.token=$SONAR_TOKEN
-                            '''
+                                  -Dsonar.token=${SONAR_TOKEN}
+                            """
                         }
                     }
                 }
@@ -59,32 +59,30 @@ spec:
                         usernameVariable: 'NEXUS_USER',
                         passwordVariable: 'NEXUS_PASS'
                     )]) {
-
-                        sh '''
-                        # Create temporary Maven settings.xml
+                        sh """
                         cat > settings.xml <<EOF
 <settings>
   <servers>
     <server>
       <id>maven-releases</id>
-      <username>${NEXUS_USER}</username>
-      <password>${NEXUS_PASS}</password>
+      <username>\${NEXUS_USER}</username>
+      <password>\${NEXUS_PASS}</password>
     </server>
     <server>
       <id>maven-snapshots</id>
-      <username>${NEXUS_USER}</username>
-      <password>${NEXUS_PASS}</password>
+      <username>\${NEXUS_USER}</username>
+      <password>\${NEXUS_PASS}</password>
     </server>
   </servers>
 </settings>
 EOF
-
-                        # Deploy using that settings file
                         mvn deploy --settings settings.xml
-                        '''
+                        """
                     }
                 }
             }
         }
+
     }
 }
+
