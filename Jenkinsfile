@@ -7,46 +7,39 @@ kind: Pod
 spec:
   containers:
   - name: maven
-    image: maven:3.9.12-eclipse-temurin-17
+    image: maven:3.9.9-eclipse-temurin-17
     command:
     - cat
     tty: true
 """
         }
     }
+
     environment {
-        // Make sure this matches your Jenkins SonarQube server name
-        SONARQUBE_SERVER = 'sonar-server'
+        NEXUS_URL = "http://nexus.local/repository/maven-hosted/"
     }
+
     stages {
 
         stage('Checkout') {
             steps {
-                checkout scm
+                git 'https://github.com/YOUR-USERNAME/YOUR-REPO.git'
             }
         }
 
         stage('Build') {
             steps {
                 container('maven') {
-                    sh 'mvn clean compile'
+                    sh 'mvn clean package'
                 }
             }
         }
 
-        stage('Test') {
+        stage('SonarQube Scan') {
             steps {
                 container('maven') {
-                    sh 'mvn test'
-                }
-            }
-        }
-
-        stage('SonarQube Analysis') {
-            steps {
-                container('maven') {
-                    withSonarQubeEnv("${SONARQUBE_SERVER}") {
-                        sh 'mvn sonar:sonar -Dsonar.projectKey=sonar-demo'
+                    withSonarQubeEnv('sonar-server') {
+                        sh 'mvn sonar:sonar'
                     }
                 }
             }
@@ -54,8 +47,27 @@ spec:
 
         stage('Quality Gate') {
             steps {
-                timeout(time: 15, unit: 'MINUTES') {
+                timeout(time: 10, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Deploy to Nexus') {
+            steps {
+                container('maven') {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'nexus-creds',
+                        usernameVariable: 'NEXUS_USER',
+                        passwordVariable: 'NEXUS_PASS'
+                    )]) {
+
+                        sh """
+                        mvn deploy \
+                          -Dnexus.username=$NEXUS_USER \
+                          -Dnexus.password=$NEXUS_PASS
+                        """
+                    }
                 }
             }
         }
