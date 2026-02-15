@@ -35,7 +35,7 @@ spec:
                         withCredentials([string(credentialsId: 'sonar-jenkins-token', variable: 'SONAR_TOKEN')]) {
                             sh '''
                                 mvn clean verify sonar:sonar \
-                                -Dsonar.token=$SONAR_TOKEN
+                                  -Dsonar.token=$SONAR_TOKEN
                             '''
                         }
                     }
@@ -59,9 +59,23 @@ spec:
                         usernameVariable: 'NEXUS_USER',
                         passwordVariable: 'NEXUS_PASS'
                     )]) {
+
                         sh '''
-                            mvn deploy \
-                             -DaltDeploymentRepository=nexus::default::${NEXUS_URL}
+                        # Create temporary Maven settings.xml
+                        cat > settings.xml <<EOF
+<settings>
+  <servers>
+    <server>
+      <id>nexus</id>
+      <username>${NEXUS_USER}</username>
+      <password>${NEXUS_PASS}</password>
+    </server>
+  </servers>
+</settings>
+EOF
+
+                        # Deploy using that settings file
+                        mvn deploy --settings settings.xml
                         '''
                     }
                 }
