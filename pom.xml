@@ -23,6 +23,11 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
+         <distributionManagement>
+    <repository>
+        <id>nexus</id>
+        <url>http://nexus.local/repository/maven-hosted/</url>
+    </repository>
+</distributionManagement>
 </project>
 
