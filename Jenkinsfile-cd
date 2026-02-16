@@ -6,8 +6,6 @@ apiVersion: v1
 kind: Pod
 spec:
   serviceAccountName: jenkins-deployer
-  automountServiceAccountToken: true
-
   containers:
   - name: kaniko
     image: gcr.io/kaniko-project/executor:v1.23.2-debug
@@ -17,27 +15,11 @@ spec:
     volumeMounts:
     - name: docker-config
       mountPath: /kaniko/.docker
-    resources:
-      requests:
-        cpu: "200m"
-        memory: "1Gi"
-      limits:
-        cpu: "1"
-        memory: "2Gi"
-
   - name: kubectl
     image: dtzar/helm-kubectl:3.15.3
     command: ["/bin/sh","-c"]
     args: ["tail -f /dev/null"]
     tty: true
-    resources:
-      requests:
-        cpu: "50m"
-        memory: "128Mi"
-      limits:
-        cpu: "200m"
-        memory: "256Mi"
-
   volumes:
   - name: docker-config
     secret:
@@ -78,17 +60,28 @@ spec:
       }
     }
 
-    stage('Deploy to On-Prem K8s') {
+    stage('Deploy to K8s') {
       steps {
         container('kubectl') {
           sh """
             kubectl -n apps apply -f sonar-demo-k8s.yaml
             kubectl -n apps set image deployment/sonar-demo sonar-demo=${FULL_IMG}
             kubectl -n apps rollout status deployment/sonar-demo --timeout=180s
-            kubectl -n apps get pods -o wide
+          """
+        }
+      }
+    }
+
+    stage('HTTP Validate') {
+      steps {
+        container('kubectl') {
+          sh """
+            kubectl -n apps run --rm -i curltest --image=curlimages/curl --restart=Never -- \
+              sh -c "curl -fsS http://sonar-demo.apps.svc.cluster.local/health && echo PASS"
           """
         }
       }
     }
   }
 }
+
