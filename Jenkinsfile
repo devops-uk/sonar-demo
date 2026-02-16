@@ -38,7 +38,6 @@ spec:
   }
 
   environment {
-    // Use the SAME registry endpoint that CRI-O can pull from (ClusterIP)
     REGISTRY = "10.100.247.93:5000"
     IMAGE    = "sonar-demo"
     TAG      = "${BUILD_NUMBER}"
@@ -47,9 +46,7 @@ spec:
 
   stages {
     stage('Checkout') {
-      steps {
-        git branch: 'main', url: 'https://github.com/devops-uk/sonar-demo.git'
-      }
+      steps { git branch: 'main', url: 'https://github.com/devops-uk/sonar-demo.git' }
     }
 
     stage('Build JAR') {
@@ -80,13 +77,8 @@ spec:
         container('kubectl') {
           sh """
             kubectl create ns apps --dry-run=client -o yaml | kubectl apply -f -
-
-            # apply your manifests (ensure sonar-demo-k8s.yaml is committed to the repo)
             kubectl -n apps apply -f sonar-demo-k8s.yaml
-
-            # set the exact image tag we just pushed
             kubectl -n apps set image deploy/sonar-demo sonar-demo=${FULL_IMG}
-
             kubectl -n apps rollout status deploy/sonar-demo --timeout=180s
             kubectl -n apps get pods -o wide
           """
@@ -95,3 +87,4 @@ spec:
     }
   }
 }
+
