@@ -1,8 +1,12 @@
 package com.lab;
 
 public class App {
-    public static void main(String[] args) {
-        System.out.println("Hello SonarQube!");
+
+    public static void main(String[] args) throws Exception {
+        System.out.println("Hello SonarQube! App started and will keep running...");
+
+        // Keep container running for Kubernetes (simple lab approach)
+        Thread.sleep(Long.MAX_VALUE);
     }
 
     public int add(int a, int b) {
@@ -15,9 +19,4 @@ public class App {
         }
         return a / b;
     }
-}
-
-public static void main(String[] args) throws Exception {
-    System.out.println("Hello SonarQube!");
-    Thread.sleep(Long.MAX_VALUE);
 }
