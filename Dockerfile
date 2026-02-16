@@ -20,3 +20,12 @@ COPY --from=builder /workspace/target/*.jar /app/app.jar
 # RUN ls -lah /app
 
 ENTRYPOINT ["java","-jar","/app/app.jar"]
+FROM tomcat:10.1-jdk17-temurin
+
+# Clean default apps (optional)
+RUN rm -rf /usr/local/tomcat/webapps/*
+
+# Copy WAR as ROOT.war so it serves at /
+COPY target/sonar-demo.war /usr/local/tomcat/webapps/ROOT.war
+
+EXPOSE 8080
