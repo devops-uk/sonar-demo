@@ -51,8 +51,8 @@ spec:
           sh """
             /kaniko/executor \
               --context \$(pwd) \
-              --dockerfile Dockerfile \
-              --destination ${FULL_IMG} \
+              --dockerfile "$(pwd)/Dockerfile" \
+              --destination "${FULL_IMG}" \
               --insecure \
               --skip-tls-verify
           """
