@@ -6,12 +6,20 @@ apiVersion: v1
 kind: Pod
 spec:
   serviceAccountName: jenkins-deployer
+  automountServiceAccountToken: true
 
   containers:
   - name: maven
     image: maven:3.9.9-eclipse-temurin-17
     command: ["cat"]
     tty: true
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+      limits:
+        cpu: "2"
+        memory: "2Gi"
 
   - name: kaniko
     image: gcr.io/kaniko-project/executor:v1.23.2-debug
@@ -22,6 +30,13 @@ spec:
     volumeMounts:
     - name: docker-config
       mountPath: /kaniko/.docker
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+      limits:
+        cpu: "2"
+        memory: "2Gi"
 
   - name: kubectl
     image: dtzar/helm-kubectl:3.15.3
@@ -30,6 +45,13 @@ spec:
     - -c
     - "sleep 365d"
     tty: true
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+      limits:
+        cpu: "500m"
+        memory: "256Mi"
 
   volumes:
   - name: docker-config
@@ -50,7 +72,6 @@ spec:
   }
 
   stages {
-
     stage('Checkout') {
       steps {
         git branch: 'main', url: 'https://github.com/devops-uk/sonar-demo.git'
@@ -84,14 +105,8 @@ spec:
       steps {
         container('kubectl') {
           sh """
-            kubectl version --client=true
-
-            # apps namespace must already exist (created once manually)
             kubectl -n apps apply -f sonar-demo-k8s.yaml
-
-            # deploy the exact image built in this pipeline
             kubectl -n apps set image deployment/sonar-demo sonar-demo=${FULL_IMG}
-
             kubectl -n apps rollout status deployment/sonar-demo --timeout=180s
             kubectl -n apps get pods -o wide
           """
