@@ -4,19 +4,15 @@ metadata:
   name: sonar-demo
   namespace: apps
 spec:
-  replicas: 1
-  revisionHistoryLimit: 2
-
+  replicas: 2
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 1
       maxUnavailable: 0
-
+      maxSurge: 1
   selector:
     matchLabels:
       app: sonar-demo
-
   template:
     metadata:
       labels:
@@ -24,70 +20,29 @@ spec:
     spec:
       imagePullSecrets:
       - name: nexus-docker
-
       containers:
       - name: sonar-demo
-        # Placeholder; your CD pipeline will override the tag every run
-        image: 10.100.247.93:5000/sonar-demo:3
-        imagePullPolicy: IfNotPresent
-
+        image: 10.100.247.93:5000/sonar-demo:manual
+        imagePullPolicy: Always
         ports:
-        - name: http
-          containerPort: 8080
-
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 5
-          failureThreshold: 3
-
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 15
-          periodSeconds: 10
-          failureThreshold: 3
-
+        - containerPort: 8080
         resources:
           requests:
-            cpu: 50m
-            memory: 128Mi
+            cpu: "200m"
+            memory: "256Mi"
           limits:
-            cpu: 200m
-            memory: 256Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: sonar-demo
-  namespace: apps
-spec:
-  selector:
-    app: sonar-demo
-  ports:
-  - name: http
-    port: 80
-    targetPort: 8080
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: sonar-demo
-  namespace: apps
-spec:
-  ingressClassName: nginx
-  rules:
-  - host: demo.local
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: sonar-demo
-            port:
-              number: 80
+            cpu: "500m"
+            memory: "512Mi"
+        readinessProbe:
+          httpGet:
+            path: /health.jsp
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /health.jsp
+            port: 8080
+          initialDelaySeconds: 20
+          periodSeconds: 10
 
