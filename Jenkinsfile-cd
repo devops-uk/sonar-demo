@@ -11,10 +11,9 @@ spec:
   containers:
   - name: kaniko
     image: gcr.io/kaniko-project/executor:v1.23.2-debug
-    command:
-    - /busybox/sh
-    - -c
-    - "sleep 365d"
+    command: ["/busybox/sh","-c"]
+    args: ["tail -f /dev/null"]
+    tty: true
     volumeMounts:
     - name: docker-config
       mountPath: /kaniko/.docker
@@ -28,10 +27,8 @@ spec:
 
   - name: kubectl
     image: dtzar/helm-kubectl:3.15.3
-    command:
-    - /bin/sh
-    - -c
-    - "sleep 365d"
+    command: ["/bin/sh","-c"]
+    args: ["tail -f /dev/null"]
     tty: true
     resources:
       requests:
