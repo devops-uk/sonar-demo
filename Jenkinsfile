@@ -22,7 +22,7 @@ spec:
       mountPath: /kaniko/.docker
 
   - name: kubectl
-    image: bitnami/kubectl:1.29.0
+    image: registry.k8s.io/kubectl:v1.32.12
     command: ["cat"]
     tty: true
 
