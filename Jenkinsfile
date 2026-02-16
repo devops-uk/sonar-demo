@@ -22,8 +22,11 @@ spec:
       mountPath: /kaniko/.docker
 
   - name: kubectl
-    image: registry.k8s.io/kubectl:v1.32.12
-    command: ["cat"]
+    image: dtzar/helm-kubectl:3.15.3
+    command:
+    - /bin/sh
+    - -c
+    - "sleep 365d"
     tty: true
 
   volumes:
@@ -46,7 +49,9 @@ spec:
 
   stages {
     stage('Checkout') {
-      steps { git branch: 'main', url: 'https://github.com/devops-uk/sonar-demo.git' }
+      steps {
+        git branch: 'main', url: 'https://github.com/devops-uk/sonar-demo.git'
+      }
     }
 
     stage('Build JAR') {
@@ -76,6 +81,7 @@ spec:
       steps {
         container('kubectl') {
           sh """
+            kubectl version --client=true
             kubectl create ns apps --dry-run=client -o yaml | kubectl apply -f -
             kubectl -n apps apply -f sonar-demo-k8s.yaml
             kubectl -n apps set image deploy/sonar-demo sonar-demo=${FULL_IMG}
@@ -87,4 +93,3 @@ spec:
     }
   }
 }
-
