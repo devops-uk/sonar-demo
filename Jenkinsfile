@@ -5,6 +5,8 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
+  serviceAccountName: jenkins-deployer
+
   containers:
   - name: maven
     image: maven:3.9.9-eclipse-temurin-17
@@ -48,6 +50,7 @@ spec:
   }
 
   stages {
+
     stage('Checkout') {
       steps {
         git branch: 'main', url: 'https://github.com/devops-uk/sonar-demo.git'
@@ -82,10 +85,14 @@ spec:
         container('kubectl') {
           sh """
             kubectl version --client=true
-            kubectl create ns apps --dry-run=client -o yaml | kubectl apply -f -
+
+            # apps namespace must already exist (created once manually)
             kubectl -n apps apply -f sonar-demo-k8s.yaml
-            kubectl -n apps set image deploy/sonar-demo sonar-demo=${FULL_IMG}
-            kubectl -n apps rollout status deploy/sonar-demo --timeout=180s
+
+            # deploy the exact image built in this pipeline
+            kubectl -n apps set image deployment/sonar-demo sonar-demo=${FULL_IMG}
+
+            kubectl -n apps rollout status deployment/sonar-demo --timeout=180s
             kubectl -n apps get pods -o wide
           """
         }
