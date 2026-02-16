@@ -5,20 +5,11 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
-  serviceAccountName: jenkins-deployer
-  automountServiceAccountToken: true
   containers:
   - name: maven
     image: maven:3.9.9-eclipse-temurin-17
     command: ["cat"]
     tty: true
-    resources:
-      requests:
-        cpu: "200m"
-        memory: "1Gi"
-      limits:
-        cpu: "1"
-        memory: "2Gi"
 """
     }
   }
@@ -33,51 +24,29 @@ spec:
     stage('Build + Test') {
       steps {
         container('maven') {
-          sh 'mvn clean test package'
+          sh 'mvn clean verify'
         }
       }
     }
 
-    // OPTIONAL: Sonar (enable if you want)
-    // stage('Sonar Scan') {
-    //   steps {
-    //     container('maven') {
-    //       withSonarQubeEnv('sonar-server') {
-    //         withCredentials([string(credentialsId: 'sonar-jenkins-token', variable: 'SONAR_TOKEN')]) {
-    //           sh 'mvn sonar:sonar -Dsonar.token=$SONAR_TOKEN'
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
+    stage('Sonar Scan') {
+      steps {
+        container('maven') {
+          withSonarQubeEnv('sonar-server') {
+            withCredentials([string(credentialsId: 'sonar-jenkins-token', variable: 'SONAR_TOKEN')]) {
+              sh 'mvn sonar:sonar -Dsonar.token=$SONAR_TOKEN'
+            }
+          }
+        }
+      }
+    }
 
-    // OPTIONAL: Maven deploy to Nexus (enable if you want)
-    // stage('Deploy JAR to Nexus') {
-    //   steps {
-    //     container('maven') {
-    //       withCredentials([usernamePassword(credentialsId: 'nexus-creds', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-    //         sh '''
-    //           cat > settings.xml <<EOF
-    // <settings>
-    //   <servers>
-    //     <server>
-    //       <id>maven-releases</id>
-    //       <username>${NEXUS_USER}</username>
-    //       <password>${NEXUS_PASS}</password>
-    //     </server>
-    //     <server>
-    //       <id>maven-snapshots</id>
-    //       <username>${NEXUS_USER}</username>
-    //       <password>${NEXUS_PASS}</password>
-    //     </server>
-    //   </servers>
-    // </settings>
-    // EOF
-    //           mvn deploy --settings settings.xml
-    //         '''
-    //       }
-    //     }
-    //   }
-    // }
+    stage('Quality Gate') {
+      steps {
+        timeout(time: 15, unit: 'MINUTES') {
+          waitForQualityGate abortPipeline: true
+        }
+      }
+    }
   }
 }
