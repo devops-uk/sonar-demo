@@ -5,9 +5,18 @@ metadata:
   namespace: apps
 spec:
   replicas: 1
+  revisionHistoryLimit: 2
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
   selector:
     matchLabels:
       app: sonar-demo
+
   template:
     metadata:
       labels:
@@ -15,11 +24,40 @@ spec:
     spec:
       imagePullSecrets:
       - name: nexus-docker
+
       containers:
       - name: sonar-demo
-        image: nexus-nexus-repository-manager.nexus.svc.cluster.local:5000/sonar-demo:latest
+        # Placeholder; your CD pipeline will override the tag every run
+        image: 10.100.247.93:5000/sonar-demo:3
+        imagePullPolicy: IfNotPresent
+
         ports:
-        - containerPort: 8080
+        - name: http
+          containerPort: 8080
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 3
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          failureThreshold: 3
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
 ---
 apiVersion: v1
 kind: Service
@@ -30,7 +68,8 @@ spec:
   selector:
     app: sonar-demo
   ports:
-  - port: 80
+  - name: http
+    port: 80
     targetPort: 8080
 ---
 apiVersion: networking.k8s.io/v1
@@ -51,3 +90,4 @@ spec:
             name: sonar-demo
             port:
               number: 80
+
