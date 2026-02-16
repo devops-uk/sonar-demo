@@ -15,10 +15,10 @@ spec:
     tty: true
     resources:
       requests:
-        cpu: "500m"
+        cpu: "200m"
         memory: "1Gi"
       limits:
-        cpu: "2"
+        cpu: "1"
         memory: "2Gi"
 
   - name: kaniko
@@ -32,10 +32,10 @@ spec:
       mountPath: /kaniko/.docker
     resources:
       requests:
-        cpu: "500m"
+        cpu: "200m"
         memory: "1Gi"
       limits:
-        cpu: "2"
+        cpu: "1"
         memory: "2Gi"
 
   - name: kubectl
@@ -47,10 +47,10 @@ spec:
     tty: true
     resources:
       requests:
-        cpu: "100m"
+        cpu: "50m"
         memory: "128Mi"
       limits:
-        cpu: "500m"
+        cpu: "200m"
         memory: "256Mi"
 
   volumes:
